@@ -34,7 +34,7 @@ class ConstraintGenerator(MetricGenerator):
                             "skew": self.moment_const,
                             "kurt": self.moment_const,
                             "moment": self.moment_const,
-                            "level":self.level_const}
+                            "level":self.level}
 
     def create_constraint(self, constraint_type, **kwargs):
         """
