@@ -47,7 +47,7 @@ class Optimizer:
         """
 
         self.ret_vec, self.moment_mat, self.assets, self.moment, self.beta_vec = Optimizer.init_checker(ret_data, moment_data,
-                                                                                                        asset_names, beta_data)
+                                                                                                        asset_names,asset_names,level1_assets,level2A_assets,level2B_assets,beta_data)
 
         self.weight_sols = None
 
@@ -55,9 +55,9 @@ class Optimizer:
         self.objective_sol = None
         self.objective_args = None
 
-        self.obj_creator = ObjGen(self.ret_vec, self.moment_mat, self.moment, self.assets, self.beta_vec)
-        self.const_creator = ConstGen(self.ret_vec, self.moment_mat, self.moment, self.assets, self.beta_vec)
-        self.metric_creator = MetGen(self.ret_vec, self.moment_mat, self.moment, self.assets, self.beta_vec)
+        self.obj_creator = ObjGen(self.ret_vec, self.moment_mat, self.moment, self.assets,self.asset_names,self.level1_assets,self.level2A_assets,self.level2B_assets,self.beta_vec)
+        self.const_creator = ConstGen(self.ret_vec, self.moment_mat, self.moment, self.assets,self.asset_names,self.level1_assets,self.level2A_assets,self.level2B_assets,self.beta_vec)
+        self.metric_creator = MetGen(self.ret_vec, self.moment_mat, self.moment, self.assets,self.asset_names,self.level1_assets,self.level2A_assets,self.level2B_assets,self.beta_vec)
 
         self.bounds, self.constraints = self.const_creator.create_constraint('weight', weight_bound=(0, 1), leverage=1)
         self.leverage = 1
