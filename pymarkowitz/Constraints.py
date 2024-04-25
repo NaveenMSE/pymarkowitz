@@ -256,7 +256,7 @@ class ConstraintGenerator(MetricGenerator):
     :return: list of dictionaries representing level allocation constraints.
     """
     # Define the constraint function
-    def constraint_function(w):
+    def level(w):
         # Extract the current allocations from the portfolio weights
         current_allocations = {
             'level1': sum(w[self.level1_assets]),
