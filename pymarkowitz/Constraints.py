@@ -141,45 +141,7 @@ class ConstraintGenerator(MetricGenerator):
         return [{"type": "ineq", "fun": lambda w: self.sharpe(w, risk_free) - bound[0]},
                 {"type": "ineq", "fun": lambda w: -self.sharpe(w, risk_free) + bound[1]}]
 
-    def beta_const(self, bound):
-        """
-        Constraint on portfolio beta
-        :param bound: float/tuple,
-                If passed in tuple, then construct lower bound and upper bound
-                Otherwise, assume passed in an upper bound
-        :return:List[dict]
-        """
-        bound = ConstraintGenerator.construct_const_bound(bound, False, -1)
-        return [{"type": "ineq", "fun": lambda w: self.beta(w) - bound[0]},
-                {"type": "ineq", "fun": lambda w: -self.beta(w) + bound[1]}]
-
-    def treynor_const(self, bound, risk_free):
-        """
-        Constraint on treynor
-        :param bound: float/tuple,
-                If passed in tuple, then construct lower bound and upper bound
-                Otherwise, assume passed in a lower bound
-        :param risk_free: int, risk free rate of return
-        :return: List[dict]
-        """
-        bound = ConstraintGenerator.construct_const_bound(bound, True, 10)
-        return [{"type": "ineq", "fun": lambda w: self.treynor(w, risk_free) - bound[0]},
-                {"type": "ineq", "fun": lambda w: -self.treynor(w, risk_free)  + bound[1]}]
-
-    def jenson_alpha_const(self, bound, risk_free, market_return):
-        """
-        Constraint on jenson's alpha
-        :param bound: float/tuple,
-                If passed in tuple, then construct lower bound and upper bound
-                Otherwise, assume passed in a lower bound
-        :param risk_free: float, risk free rate of return
-        :param market_return: float, market return
-        :return: List[dict]
-        """
-        bound = ConstraintGenerator.construct_const_bound(bound, True, 10)
-        return [{"type": "ineq", "fun": lambda w: self.jenson_alpha(w, risk_free, market_return) - bound[0]},
-                {"type": "ineq", "fun": lambda w: -self.jenson_alpha(w, risk_free, market_return) + bound[1]}]
-
+   
     def moment_const(self, bound):
         """
         Constraint on moment (variance, skewness, kurtosis, higher moment)
