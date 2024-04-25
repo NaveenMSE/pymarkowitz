@@ -245,6 +245,36 @@ class ConstraintGenerator(MetricGenerator):
 
         temp = temp / np.abs(temp).sum() * leverage  # Two Standard Deviation
         return temp
+        def level_allocation_const(self, level_allocations):
+    """
+    Construct a constraint ensuring that the allocation of assets belonging to different levels remains the same
+    after optimization.
+
+    :param level_allocations: dict, representing the desired allocations of assets for each level.
+                              Example: {'level1': 0.2, 'level2A': 0.3, 'level2B': 0.5}
+    :return: list of dictionaries representing level allocation constraints.
+    """
+    # Define the constraint function
+    def constraint_function(w):
+        # Extract the current allocations from the portfolio weights
+        current_allocations = {
+            'level1': sum(w[self.level1_assets]),
+            'level2A': sum(w[self.level2A_assets]),
+            'level2B': sum(w[self.level2B_assets])
+        }
+        
+        # Compare the current allocations with the desired allocations
+        constraints = []
+        for level, allocation in level_allocations.items():
+            constraints.append(allocation - current_allocations[level])
+        
+        return constraints
+    
+    # Construct the constraints
+    return [{"type": "eq", "fun": constraint_function}]
+
+
+
 
 
     # def variance_const(self, bound):
