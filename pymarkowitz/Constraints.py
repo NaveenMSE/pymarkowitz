@@ -45,7 +45,7 @@ class ConstraintGenerator(MetricGenerator):
         return self.method_dict[constraint_type](**kwargs)
 
     # Portfolio Composition
-    def weight(self, weight_bound, leverage):
+    def weight(self, weight_bound):
         """
         Constructing individual portfolio weight bound and total leverage
 
@@ -58,8 +58,8 @@ class ConstraintGenerator(MetricGenerator):
         init_bound = (0,1)
         individual_bound = ConstraintGenerator.construct_weight_bound(self.ret_vec.shape[0], init_bound, weight_bound)
 
-        total_leverage = [{'type': 'eq', 'fun': lambda w: -self.leverage(w) + leverage}]
-        return individual_bound, total_leverage
+        
+        return individual_bound
 
     def num_assets_const(self, num_assets):
         """
