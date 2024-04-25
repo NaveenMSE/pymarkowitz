@@ -33,7 +33,7 @@ from .Metrics import MetricGenerator as MetGen
 
 class Optimizer:
 
-    def __init__(self, ret_data, moment_data, beta_data=None, asset_names,level1_assets,level2A_assets,level2B_assets):
+    def __init__(self, ret_data, moment_data, asset_names,level1_assets,level2A_assets,level2B_assets,beta_data=None):
         """
         Initializes an Optimizer instance with data
 
