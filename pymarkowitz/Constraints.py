@@ -19,7 +19,7 @@ class ConstraintGenerator(MetricGenerator):
         Parameters are identical to its parent class MetricGenerator
         """
 
-        super().__init__(ret_vec, moment_mat, moment, assets, beta_vec)
+        super().__init__(ret_vec, moment_mat, moment, assets, beta_vec,level1_assets,level2A_assets,level2B_assets)
         self.method_dict = {"weight": self.weight,
                             "num_assets": self.num_assets_const,
                             "concentration": self.concentration_const,
