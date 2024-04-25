@@ -54,7 +54,7 @@ class Optimizer:
         self.objective_sol = None
         self.objective_args = None
 
-        self.obj_creator = ObjGen(self.ret_vec, self.moment_mat, self.moment, self.assets,,self.level1_assets,self.level2A_assets,self.level2B_assets,self.beta_vec)
+        self.obj_creator = ObjGen(self.ret_vec, self.moment_mat, self.moment, self.assets,self.level1_assets,self.level2A_assets,self.level2B_assets,self.beta_vec)
         self.const_creator = ConstGen(self.ret_vec, self.moment_mat, self.moment, self.assets,self.level1_assets,self.level2A_assets,self.level2B_assets,self.beta_vec)
         self.metric_creator = MetGen(self.ret_vec, self.moment_mat, self.moment, self.assets,self.level1_assets,self.level2A_assets,self.level2B_assets,self.beta_vec)
 
