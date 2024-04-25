@@ -33,8 +33,8 @@ class ConstraintGenerator(MetricGenerator):
                             "variance": self.moment_const,
                             "skew": self.moment_const,
                             "kurt": self.moment_const,
-                            "moment": self.moment_const,
-                            "level":self.level_allocation_cost}
+                            "moment": self.moment_const
+                            "level": self.level_allocation_const}
 
     def create_constraint(self, constraint_type, **kwargs):
         """
@@ -46,7 +46,7 @@ class ConstraintGenerator(MetricGenerator):
         return self.method_dict[constraint_type](**kwargs)
 
     # Portfolio Composition
-    def weight(self, weight_bound):
+    def weight(self, weight_bound, leverage):
         """
         Constructing individual portfolio weight bound and total leverage
 
@@ -59,8 +59,8 @@ class ConstraintGenerator(MetricGenerator):
         init_bound = (0,1)
         individual_bound = ConstraintGenerator.construct_weight_bound(self.ret_vec.shape[0], init_bound, weight_bound)
 
-        
-        return individual_bound
+        total_leverage = [{'type': 'eq', 'fun': lambda w: -self.leverage(w) + leverage}]
+        return individual_bound, total_leverage
 
     def num_assets_const(self, num_assets):
         """
@@ -142,7 +142,45 @@ class ConstraintGenerator(MetricGenerator):
         return [{"type": "ineq", "fun": lambda w: self.sharpe(w, risk_free) - bound[0]},
                 {"type": "ineq", "fun": lambda w: -self.sharpe(w, risk_free) + bound[1]}]
 
-   
+    def beta_const(self, bound):
+        """
+        Constraint on portfolio beta
+        :param bound: float/tuple,
+                If passed in tuple, then construct lower bound and upper bound
+                Otherwise, assume passed in an upper bound
+        :return:List[dict]
+        """
+        bound = ConstraintGenerator.construct_const_bound(bound, False, -1)
+        return [{"type": "ineq", "fun": lambda w: self.beta(w) - bound[0]},
+                {"type": "ineq", "fun": lambda w: -self.beta(w) + bound[1]}]
+
+    def treynor_const(self, bound, risk_free):
+        """
+        Constraint on treynor
+        :param bound: float/tuple,
+                If passed in tuple, then construct lower bound and upper bound
+                Otherwise, assume passed in a lower bound
+        :param risk_free: int, risk free rate of return
+        :return: List[dict]
+        """
+        bound = ConstraintGenerator.construct_const_bound(bound, True, 10)
+        return [{"type": "ineq", "fun": lambda w: self.treynor(w, risk_free) - bound[0]},
+                {"type": "ineq", "fun": lambda w: -self.treynor(w, risk_free)  + bound[1]}]
+
+    def jenson_alpha_const(self, bound, risk_free, market_return):
+        """
+        Constraint on jenson's alpha
+        :param bound: float/tuple,
+                If passed in tuple, then construct lower bound and upper bound
+                Otherwise, assume passed in a lower bound
+        :param risk_free: float, risk free rate of return
+        :param market_return: float, market return
+        :return: List[dict]
+        """
+        bound = ConstraintGenerator.construct_const_bound(bound, True, 10)
+        return [{"type": "ineq", "fun": lambda w: self.jenson_alpha(w, risk_free, market_return) - bound[0]},
+                {"type": "ineq", "fun": lambda w: -self.jenson_alpha(w, risk_free, market_return) + bound[1]}]
+
     def moment_const(self, bound):
         """
         Constraint on moment (variance, skewness, kurtosis, higher moment)
@@ -247,32 +285,23 @@ class ConstraintGenerator(MetricGenerator):
         temp = temp / np.abs(temp).sum() * leverage  # Two Standard Deviation
         return temp
     def level_allocation_const(self, level_allocations):
-    """
-    Construct a constraint ensuring that the allocation of assets belonging to different levels remains the same
-    after optimization.
-
-    :param level_allocations: dict, representing the desired allocations of assets for each level.
-                              Example: {'level1': 0.2, 'level2A': 0.3, 'level2B': 0.5}
-    :return: list of dictionaries representing level allocation constraints.
-    """
-    # Define the constraint function
         def level(w):
             # Extract the current allocations from the portfolio weights
             current_allocations = {
-            'level1': sum(w[self.level1_assets]),
-            'level2A': sum(w[self.level2A_assets]),
-            'level2B': sum(w[self.level2B_assets])
-        }
-        
-    # Compare the current allocations with the desired allocations
+                'level1': sum(w[self.level1_assets]),
+                'level2A': sum(w[self.level2A_assets]),
+                'level2B': sum(w[self.level2B_assets])
+            }
+            
+            # Compare the current allocations with the desired allocations
             constraints = []
             for level, allocation in level_allocations.items():
                 constraints.append(allocation - current_allocations[level])
-        
+            
             return constraints
-    
-    # Construct the constraints
-         return [{"type": "eq", "fun": level}]
+        
+        # Construct the constraints
+        return [{"type": "eq", "fun": level}]
 
 
     # def variance_const(self, bound):
@@ -296,4 +325,3 @@ class ConstraintGenerator(MetricGenerator):
     #     bound = ConstraintGenerator.construct_const_bound(bound, False, 0)
     #     return [{"type": "ineq", "fun": lambda w: self.higher_moment(w) + bound[0]},
     #             {"type": "ineq", "fun": lambda w: -self.higher_moment(w) + bound[1]}]
-
