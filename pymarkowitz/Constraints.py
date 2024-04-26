@@ -13,9 +13,6 @@ class ConstraintGenerator(MetricGenerator):
         """
 
         super().__init__(ret_vec, moment_mat, moment, assets, beta_vec)
-        self.level1_assets = level1_assets
-        self.level2A_assets = level2A_assets
-        self.level2B_assets = level2B_assets
         self.method_dict = {"weight": self.weight,
                             "num_assets": self.num_assets_const,
                             "concentration": self.concentration_const,
@@ -277,23 +274,23 @@ class ConstraintGenerator(MetricGenerator):
 
         temp = temp / np.abs(temp).sum() * leverage  # Two Standard Deviation
         return temp
-    
-    def level_allocation_const(self, level_allocations):
+
+    def level_allocation_const(self, level_allocations,security_data):
         def level(w):
-            # Extract the current allocations from the portfolio weights
-            current_allocations = {
-                'level1': sum(w[self.level1_assets]),
-                'level2A': sum(w[self.level2A_assets]),
-                'level2B': sum(w[self.level2B_assets])
-            }
-            
+            # Initialize dictionaries to store weights for each category
+            category_weights = {category: 0 for category in level_allocations.keys()}
+        
+            # Iterate over securities and add their weights to the corresponding category
+            for _, row in self.security_data.iterrows():
+                category_weights[row['Category']] += w[self.assets.index(row['Security'])]
+        
             # Compare the current allocations with the desired allocations
             constraints = []
-            for level, allocation in level_allocations.items():
-                constraints.append(allocation - current_allocations[level])
-            
-            return constraints
+            for category, allocation in level_allocations.items():
+                constraints.append(allocation - category_weights[category])
         
-        # Construct the constraints
+            return constraints
+    
+    # Construct the constraints
         return [{"type": "eq", "fun": level}]
 
