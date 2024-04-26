@@ -1,29 +1,24 @@
-"""
-ConstraintGenerator constructs 3 types of optimization constraints
-    - Portfolio Composition (Weight, Leverage, Concentration, Number of Holdings)
-    - Risk-only (Volatility, Variance, Skewness, Kurtosis, Higher Normalized Moments, Market Neutral)
-    - Risk Reward (Expected Return, Sharpe, Sortino, Beta, Treynor, Jenson's Alpha)
-
-In addition, the class holds functions to construct bounds for constraints and weights
-"""
 import warnings
+import numpy as np
 
 from .Metrics import *
 
 
 class ConstraintGenerator(MetricGenerator):
 
-    def __init__(self, ret_vec, moment_mat, moment, assets, beta_vec):
+    def __init__(self, ret_vec, moment_mat, moment, assets, beta_vec, level1_assets, level2A_assets, level2B_assets):
         """
         Initialize a ConstraintGenerator class with parameters to construct constraints
         Parameters are identical to its parent class MetricGenerator
         """
 
         super().__init__(ret_vec, moment_mat, moment, assets, beta_vec)
+        self.level1_assets = level1_assets
+        self.level2A_assets = level2A_assets
+        self.level2B_assets = level2B_assets
         self.method_dict = {"weight": self.weight,
                             "num_assets": self.num_assets_const,
                             "concentration": self.concentration_const,
-                            # "market_neutral": self.market_neutral_const,
                             "expected_return": self.expected_return_const,
                             "sharpe": self.sharpe_const,
                             "beta": self.beta_const,
@@ -230,8 +225,6 @@ class ConstraintGenerator(MetricGenerator):
                     raise DimException("""If specifying weight for each individual asset, must be passed in pairs and 
                                             its length must equal the number of assets""")
             if isinstance(weight_bound[0], (float, int)):
-                # constraints += [self.weight_param >= weight_bound[0]]
-                # constraints += [self.weight_param <= weight_bound[1]]
                 individual_bound = list(zip(np.repeat(weight_bound[0], size),
                                             np.repeat(weight_bound[1], size)))
             else:
@@ -284,6 +277,7 @@ class ConstraintGenerator(MetricGenerator):
 
         temp = temp / np.abs(temp).sum() * leverage  # Two Standard Deviation
         return temp
+    
     def level_allocation_const(self, level_allocations):
         def level(w):
             # Extract the current allocations from the portfolio weights
@@ -303,25 +297,3 @@ class ConstraintGenerator(MetricGenerator):
         # Construct the constraints
         return [{"type": "eq", "fun": level}]
 
-
-    # def variance_const(self, bound):
-    #     if self.moment != 2:
-    #         raise DimException("Did not pass in a correlation/covariance matrix")
-    #     bound = ConstraintGenerator.construct_const_bound(bound, False, 0)
-    #     return [{"type": "ineq", "fun": lambda w: self.variance(w) + bound[0]},
-    #             {"type": "ineq", "fun": lambda w: -self.variance(w) + bound[1]}]
-    #
-    # def skew_const(self, bound):
-    #     if self.moment != 3:
-    #         raise DimException("Did not pass in a coskewness matrix")
-    #     bound = ConstraintGenerator.construct_const_bound(bound, False, 0)
-    #     return [{"type": "ineq", "fun": lambda w: self.higher_moment(w) + bound[0]},
-    #             {"type": "ineq", "fun": lambda w: -self.higher_moment(w) + bound[1]}]
-    #
-    # def kurt_const(self, bound):
-    #     if self.moment != 4:
-    #         raise DimException("Did not pass in a cokurtosis matrix")
-    #
-    #     bound = ConstraintGenerator.construct_const_bound(bound, False, 0)
-    #     return [{"type": "ineq", "fun": lambda w: self.higher_moment(w) + bound[0]},
-    #             {"type": "ineq", "fun": lambda w: -self.higher_moment(w) + bound[1]}]
