@@ -13,13 +13,13 @@ from .Metrics import *
 
 class ConstraintGenerator(MetricGenerator):
 
-    def __init__(self, ret_vec, moment_mat, moment, assets, beta_vec,level1_assets,level2A_assets,level2B_assets):
+    def __init__(self, ret_vec, moment_mat, moment, assets, beta_vec):
         """
         Initialize a ConstraintGenerator class with parameters to construct constraints
         Parameters are identical to its parent class MetricGenerator
         """
 
-        super().__init__(ret_vec, moment_mat, moment, assets, beta_vec,level1_assets,level2A_assets,level2B_assets)
+        super().__init__(ret_vec, moment_mat, moment, assets, beta_vec)
         self.method_dict = {"weight": self.weight,
                             "num_assets": self.num_assets_const,
                             "concentration": self.concentration_const,
