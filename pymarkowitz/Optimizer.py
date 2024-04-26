@@ -33,7 +33,7 @@ from .Metrics import MetricGenerator as MetGen
 
 class Optimizer:
 
-    def __init__(self, ret_data, moment_data, asset_names,level1_assets,level2A_assets,level2B_assets,beta_data=None):
+    def __init__(self, ret_data, moment_data, asset_names=None,beta_data=None):
         """
         Initializes an Optimizer instance with data
 
@@ -46,7 +46,7 @@ class Optimizer:
         :param asset_names: List[str], optional, list of asset names
         """
 
-        self.ret_vec, self.moment_mat, self.assets, self.moment, self.level1_assets,self.level2A_assets,self.level2B_assets, self.beta_vec = Optimizer.init_checker(ret_data, moment_data, asset_names,asset_names,level1_assets,level2A_assets,level2B_assets,beta_data)
+        self.ret_vec, self.moment_mat, self.assets, self.moment,self.beta_vec = Optimizer.init_checker(ret_data, moment_data, asset_names,beta_data)
 
         self.weight_sols = None
 
